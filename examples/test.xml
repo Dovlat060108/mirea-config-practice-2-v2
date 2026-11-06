@@ -1,0 +1,9 @@
+<config>
+  <package>A</package>
+  <repository>graph.json</repository>
+  <test_mode>true</test_mode>
+  <version>1.0</version>
+  <output>test.svg</output>
+  <ascii_tree>true</ascii_tree>
+  <filter>Z</filter>
+</config>
