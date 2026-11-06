@@ -1,0 +1,9 @@
+<config>
+  <package>org.slf4j:slf4j-api</package>
+  <repository>https://repo.maven.apache.org/maven2</repository>
+  <test_mode>false</test_mode>
+  <version>2.0.17</version>
+  <output>slf4j.svg</output>
+  <ascii_tree>false</ascii_tree>
+  <filter></filter>
+</config>
