@@ -1,0 +1,9 @@
+<config>
+  <package>D</package>
+  <repository>graph-cycles.json</repository>
+  <test_mode>true</test_mode>
+  <version>1.0</version>
+  <output>reverse.svg</output>
+  <ascii_tree>false</ascii_tree>
+  <filter>X</filter>
+</config>

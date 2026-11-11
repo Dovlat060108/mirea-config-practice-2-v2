@@ -33,3 +33,19 @@ def build_graph(roots, neighbours, excluded):
     for root in roots:
         walk(root, neighbours, excluded, graph, set())
     return graph
+
+
+def reverse_edges(edges):
+    """Turn each dependent-to-dependency edge around."""
+    incoming = {node: [] for node in edges}
+    for node, targets in edges.items():
+        for target in targets:
+            incoming[target].append(node)
+    return incoming
+
+
+def reverse_dependents(edges, package, excluded):
+    """Find all packages reaching the target through the reversed graph."""
+    incoming = reverse_edges(edges)
+    result = build_graph([package], incoming.get, excluded)
+    return [node for node in result.edges if node != package]

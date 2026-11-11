@@ -1,0 +1,9 @@
+<config>
+  <package>F</package>
+  <repository>graph-cycles.json</repository>
+  <test_mode>true</test_mode>
+  <version>1.0</version>
+  <output>isolated.svg</output>
+  <ascii_tree>false</ascii_tree>
+  <filter>X</filter>
+</config>

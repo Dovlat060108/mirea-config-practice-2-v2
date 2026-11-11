@@ -3,7 +3,7 @@
 import argparse
 import sys
 
-from analysis import forward_graph
+from analysis import forward_graph, reverse_packages
 from config import load_config
 from maven import Repository
 from test_repository import direct_test_dependencies
@@ -44,16 +44,41 @@ def show_graph(config, stream):
         print(f"Цикл: {start} -> {end}", file=stream)
 
 
+def show_reverse(config, stream, catalog):
+    """Print all direct and indirect dependents of the selected package."""
+    packages = reverse_packages(config, catalog)
+    print(f"Обратные зависимости: {config.package}", file=stream)
+    for package in packages:
+        print(package, file=stream)
+    if not packages:
+        print("(нет)", file=stream)
+
+
+def run_mode(args, config, stream):
+    """Select an output mode for the loaded configuration."""
+    if args.reverse:
+        show_reverse(config, stream, args.catalog)
+    elif args.direct:
+        show_dependencies(config, stream)
+    else:
+        show_graph(config, stream)
+
+
 def main(argv=None):
     """Load the XML settings and report dependency or configuration errors."""
     parser = argparse.ArgumentParser(description="ПР 2, вариант 2: Maven")
     parser.add_argument("config", help="путь к XML с семью настройками")
-    parser.add_argument("--direct", action="store_true",
-                        help="показать прямые объявления POM (этап 2)")
+    modes = parser.add_mutually_exclusive_group()
+    modes.add_argument("--direct", action="store_true",
+                       help="показать прямые объявления POM (этап 2)")
+    modes.add_argument("--reverse", action="store_true",
+                       help="найти пакеты, зависящие от выбранного")
+    parser.add_argument("--catalog", help="JSON-каталог для обратного Maven")
     args = parser.parse_args(argv)
+    if args.catalog and not args.reverse:
+        parser.error("--catalog используется вместе с --reverse")
     try:
-        show = show_dependencies if args.direct else show_graph
-        show(load_config(args.config), sys.stdout)
+        run_mode(args, load_config(args.config), sys.stdout)
     except RecursionError:
         print("Ошибка: граф слишком глубокий для рекурсивного DFS",
               file=sys.stderr)

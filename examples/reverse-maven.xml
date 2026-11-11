@@ -1,0 +1,9 @@
+<config>
+  <package>org.hamcrest:hamcrest-core</package>
+  <repository>https://repo.maven.apache.org/maven2</repository>
+  <test_mode>false</test_mode>
+  <version>1.3</version>
+  <output>reverse-maven.svg</output>
+  <ascii_tree>false</ascii_tree>
+  <filter></filter>
+</config>
