@@ -1,8 +1,9 @@
-"""Stage 2: print the direct dependencies of a configured Maven package."""
+"""Command line entry point for Maven dependency analysis."""
 
 import argparse
 import sys
 
+from analysis import forward_graph
 from config import load_config
 from maven import Repository
 from test_repository import direct_test_dependencies
@@ -30,13 +31,33 @@ def show_dependencies(config, stream):
         print("(нет)", file=stream)
 
 
+def show_graph(config, stream):
+    """Print the reachable graph and report edges that close a cycle."""
+    graph = forward_graph(config)
+    print(f"Граф зависимостей: {config.package}", file=stream)
+    if not graph.edges:
+        print("(пакет исключён фильтром)", file=stream)
+    for node, targets in graph.edges.items():
+        print(f"{node} -> {', '.join(targets) or 'нет зависимостей'}",
+              file=stream)
+    for start, end in graph.cycles:
+        print(f"Цикл: {start} -> {end}", file=stream)
+
+
 def main(argv=None):
     """Load the XML settings and report dependency or configuration errors."""
     parser = argparse.ArgumentParser(description="ПР 2, вариант 2: Maven")
     parser.add_argument("config", help="путь к XML с семью настройками")
+    parser.add_argument("--direct", action="store_true",
+                        help="показать прямые объявления POM (этап 2)")
     args = parser.parse_args(argv)
     try:
-        show_dependencies(load_config(args.config), sys.stdout)
+        show = show_dependencies if args.direct else show_graph
+        show(load_config(args.config), sys.stdout)
+    except RecursionError:
+        print("Ошибка: граф слишком глубокий для рекурсивного DFS",
+              file=sys.stderr)
+        return ERROR_EXIT
     except ValueError as error:
         print(f"Ошибка: {error}", file=sys.stderr)
         return ERROR_EXIT

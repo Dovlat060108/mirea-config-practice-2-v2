@@ -19,14 +19,25 @@ def check_graph(graph):
                 raise ValueError(f"Неизвестный узел тестового графа: {edge}")
 
 
-def direct_test_dependencies(filename, package):
-    """Return immediate neighbours; graph traversal belongs to stage 3."""
+def load_test_graph(filename):
+    """Load and validate every adjacency list in the repository."""
     try:
         graph = json.loads(Path(filename).read_text(encoding="utf-8"))
     except (OSError, UnicodeError, ValueError) as error:
         message = f"Не удалось прочитать тестовый граф: {error}"
         raise ValueError(message) from error
     check_graph(graph)
+    return graph
+
+
+def require_package(graph, package):
+    """Report an absent starting package before traversing the graph."""
     if package not in graph:
         raise ValueError(f"В тестовом репозитории нет пакета {package}")
+
+
+def direct_test_dependencies(filename, package):
+    """Return the immediate neighbours of a package for stage 2."""
+    graph = load_test_graph(filename)
+    require_package(graph, package)
     return list(dict.fromkeys(graph[package]))

@@ -20,7 +20,7 @@ class StageTwoTests(unittest.TestCase):
         """Print only B and C as direct dependencies of A, excluding D."""
         stream = StringIO()
         with redirect_stdout(stream):
-            code = main([str(EXAMPLES / "test.xml")])
+            code = main([str(EXAMPLES / "test.xml"), "--direct"])
         self.assertEqual(code, 0)
         self.assertEqual(stream.getvalue().splitlines()[-2:], ["B", "C"])
         self.assertNotIn("test_mode=", stream.getvalue())
@@ -30,7 +30,8 @@ class StageTwoTests(unittest.TestCase):
         stream = StringIO()
         with patch("main.Repository.direct_dependencies", return_value=[]):
             with redirect_stdout(stream):
-                self.assertEqual(main([str(EXAMPLES / "junit.xml")]), 0)
+                code = main([str(EXAMPLES / "junit.xml"), "--direct"])
+        self.assertEqual(code, 0)
         self.assertIn("(нет)", stream.getvalue())
 
     def test_network_error_cli(self):
@@ -39,7 +40,8 @@ class StageTwoTests(unittest.TestCase):
         with patch("main.Repository.direct_dependencies",
                    side_effect=ValueError("HTTP 404")):
             with redirect_stderr(stream):
-                self.assertEqual(main([str(EXAMPLES / "junit.xml")]), 2)
+                code = main([str(EXAMPLES / "junit.xml"), "--direct"])
+        self.assertEqual(code, 2)
         self.assertIn("HTTP 404", stream.getvalue())
 
     def test_graph_structure_errors(self):
